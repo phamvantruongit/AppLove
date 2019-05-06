@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
+import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,10 +33,6 @@ public class DetailActivity extends AppCompatActivity {
         dowloadData.execute(href);
 
 
-
-
-
-
     }
 
     private class DowloadData extends AsyncTask<String, Void, List<DSTruyen>> {
@@ -49,7 +46,7 @@ public class DetailActivity extends AppCompatActivity {
 
                 Elements li = elements.select("li");
 
-                for(int i=0 ;i<li.size();i++) {
+                for (int i = 0; i < li.size(); i++) {
 
                     Elements a = li.get(i).select("a");
                     String href = a.attr("href");
@@ -69,7 +66,7 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final List<DSTruyen> list) {
             super.onPostExecute(list);
-            final DowloadDetail dowloadDetail=new DowloadDetail();
+            final DowloadDetail dowloadDetail = new DowloadDetail();
             dowloadDetail.execute(list.get(0).href);
             viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -79,6 +76,9 @@ public class DetailActivity extends AppCompatActivity {
 
                 @Override
                 public void onPageSelected(int i) {
+                    if(i%2==0){
+                        //Tiep tuc dowload 
+                    }
 
                 }
 
@@ -96,11 +96,16 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         protected List<String> doInBackground(String... url) {
             org.jsoup.nodes.Document document = null;
-            List<String>  data = new ArrayList<>();
+            List<String> data = new ArrayList<>();
             try {
-                document = Jsoup.connect(url[1]).get();
+                document = Jsoup.connect(url[0]).get();
                 Elements elements = document.select("div[class=chapter-c]");
+                Elements elementH3 = document.select("h3[class=text-center]");
+                Elements elementsA = elementH3.get(0).select("a");
+                String title = elementsA.text();
                 data.add(elements.html());
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,8 +117,8 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<String> data) {
             super.onPostExecute(data);
-            Log.d("Data",data.get(0));
-            AdapterDSChuong adapterDSChuong=new AdapterDSChuong(DetailActivity.this,data);
+            Log.d("Data", data.get(0));
+            AdapterDSChuong adapterDSChuong = new AdapterDSChuong(DetailActivity.this, data);
             viewPager.setAdapter(adapterDSChuong);
 
         }
